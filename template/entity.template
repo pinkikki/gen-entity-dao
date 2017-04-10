@@ -1,0 +1,8 @@
+namespace script.common.entity
+{
+    public class {{ entity_cls }} {
+        {% for column in columns %}
+        public {{ column.type }} {{ column.field }} { get; set; }
+        {% endfor %}
+    }
+}

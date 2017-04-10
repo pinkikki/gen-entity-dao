@@ -1,0 +1,66 @@
+using System.Collections.Generic;
+using System.Text;
+using Plugins;
+using script.common.entity;
+using script.core.db;
+
+public static class {{ dao_cls }}
+{
+    public static List<{{ entity_cls }}> SelectAll()
+    {
+        List<{{ entity_cls }}> entityList = new List<{{ entity_cls }}>();
+        StringBuilder sb = new StringBuilder();
+        sb.Append("SELECT * FROM {{ table_name }};");
+        DataTable dataTable = DbManager.ExecuteQuery(sb.ToString());
+        dataTable.Rows.ForEach(r => entityList.Add(CreateEntity(r)));
+        return entityList;
+    }
+
+    public static {{ entity_cls }} SelectByPrimaryKey(int {{ pk_name }})
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.Append("SELECT * FROM Dummy WHERE {{ pk_name }} = ")
+            .Append({{ pk_field }})
+            .Append(";");
+        DataTable dataTable = DbManager.ExecuteQuery(sb.ToString());
+        return dataTable.Rows.Count == 0 ? null : CreateEntity(dataTable[0]);
+    }
+
+    public static void Insert({{ entity_cls }} entity)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.Append("INSERT INTO {{ table_name }} VALUES (")
+        {% for column in columns %}
+            {% if column.type == 'string' %}.Append("'"){% endif %}
+            {% if column.type == 'bool' %}.Append(entity.{{ column.field }} ? 1 : 0){% else %}.Append(entity.{{ column.field }}){% endif %}
+            {% if column.type == 'string' %}.Append("'"){% endif %}
+            {% if column.last_flg == false %}.Append(","){% endif %}
+        {% endfor %}
+            .Append(");");
+        DbManager.ExecuteNonQuery(sb.ToString());
+    }
+
+    public static void Update({{ entity_cls }} entity)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.Append("UPDATE {{ table_name }} SET ")
+        {% for column in columns %}
+            .Append("{{ column.name }} = ")
+            {% if column.type == 'string' %}.Append("'"){% endif %}
+            {% if column.type == 'bool' %}.Append(entity.{{ column.field }} ? 1 : 0){% else %}.Append(entity.{{ column.field }}){% endif %}
+            {% if column.type == 'string' %}.Append("'"){% endif %}
+            {% if column.last_flg == false %}.Append(","){% endif %}
+        {% endfor %}
+            .Append(";");
+        DbManager.ExecuteNonQuery(sb.ToString());
+    }
+
+    private static {{ entity_cls }} CreateEntity(DataRow row)
+    {
+        {{ entity_cls }} entity = new {{ entity_cls }}();
+        {% for column in columns %}
+        entity.{{ column.field }} = DaoSupport.{% if column.type == 'int' %}GetIntValue{% elif column.type == 'string' %}GetStringValue{% else %}GetBoolValue{% endif %}(row, "{{ column.field }}");
+        {% endfor %}
+        return entity;
+    }
+}

@@ -19,7 +19,7 @@ public static class {{ dao_cls }}
     public static {{ entity_cls }} SelectByPrimaryKey(int {{ pk_field }})
     {
         StringBuilder sb = new StringBuilder();
-        sb.Append("SELECT * FROM Dummy WHERE {{ pk_name }} = ")
+        sb.Append("SELECT * FROM {{ table_name }} WHERE {{ pk_name }} = ")
             .Append({{ pk_field }})
             .Append(";");
         DataTable dataTable = DbManager.ExecuteQuery(sb.ToString());

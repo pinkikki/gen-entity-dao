@@ -5,6 +5,7 @@ import re
 class StringUtils:
     @classmethod
     def to_camel(cls, val, lower_flg=False):
-        camel_val = None if val is None else "".join(map(
-            lambda x: x.capitalize(), re.split("[\s_]", val.lower())))
-        return camel_val.lower() if lower_flg else camel_val
+        camel_vals = None if val is None else list(map(lambda x: x.capitalize(), re.split("[\s_]", val.lower())))
+        if lower_flg:
+            camel_vals[0] = camel_vals[0].lower()
+        return "".join(camel_vals)

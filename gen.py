@@ -18,9 +18,9 @@ def convert_from_sqlite_to_c(sqlite_type):
 
 def create_entity(table_name, column_info_list):
     cls_name = StringUtils.to_camel(table_name) + "Entity"
-    env = Environment(loader=FileSystemLoader('../template/', encoding='utf8'))
+    env = Environment(loader=FileSystemLoader('./template/', encoding='utf8'))
     tpl = env.get_template('entity.template')
-    with open("../output/" + cls_name + '.cs', 'wt') as fout:
+    with open("./output/" + cls_name + '.cs', 'wt') as fout:
         columns = []
         for column_info in column_info_list:
             columns.append(
@@ -32,9 +32,9 @@ def create_entity(table_name, column_info_list):
 def create_dao(table_name, column_info_list):
     dao_cls_name = StringUtils.to_camel(table_name) + "Dao"
     entity_cls_name = StringUtils.to_camel(table_name) + "Entity"
-    env = Environment(loader=FileSystemLoader('../template/', encoding='utf8'))
+    env = Environment(loader=FileSystemLoader('./template/', encoding='utf8'))
     tpl = env.get_template('dao.template')
-    with open("../output/" + dao_cls_name + '.cs', 'wt') as fout:
+    with open("./output/" + dao_cls_name + '.cs', 'wt') as fout:
         columns = []
         count = len(column_info_list)
         index = 0;

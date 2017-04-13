@@ -3,7 +3,7 @@
 #### Usage
 1. ツールの実行  
 ```
-python dao_writer.py
+python gen.py
 ```
 
 2. entity/daoを確認  

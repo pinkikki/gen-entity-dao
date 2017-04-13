@@ -46,7 +46,7 @@ def create_dao(table_name, column_info_list):
 
         out_text = tpl.render(
             {'entity_cls': entity_cls_name, 'dao_cls': dao_cls_name, 'table_name': table_name, 'columns': columns,
-             'pk_name': column_info_list[0][0], 'pk_field': columns[0]['name']})
+             'pk_name': column_info_list[0][0], 'pk_field': StringUtils.to_camel(columns[0]['name'], lower_flg=True)})
         fout.write(out_text)
 
 

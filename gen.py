@@ -6,11 +6,11 @@ from jinja2 import Environment, FileSystemLoader
 
 
 def convert_from_sqlite_to_c(sqlite_type):
-    if sqlite_type == "INTEGER":
+    if sqlite_type == "integer":
         ret = "int"
-    elif sqlite_type == "TEXT" or sqlite_type.find("VARCHAR") > -1:
+    elif sqlite_type == "text" or sqlite_type.find("varchar") > -1:
         ret = "string"
-    elif sqlite_type == "BOOLEAN":
+    elif sqlite_type == "boolean":
         ret = "bool"
 
     return ret
@@ -20,7 +20,7 @@ def create_entity(table_name, column_info_list):
     cls_name = StringUtils.to_camel(table_name) + "Entity"
     env = Environment(loader=FileSystemLoader('./template/', encoding='utf8'))
     tpl = env.get_template('entity.template')
-    with open("./output/" + cls_name + '.cs', 'wt') as fout:
+    with open("./output/" + cls_name + '.cs', 'wt', encoding='utf-8') as fout:
         columns = []
         for column_info in column_info_list:
             columns.append(
@@ -34,7 +34,7 @@ def create_dao(table_name, column_info_list):
     entity_cls_name = StringUtils.to_camel(table_name) + "Entity"
     env = Environment(loader=FileSystemLoader('./template/', encoding='utf8'))
     tpl = env.get_template('dao.template')
-    with open("./output/" + dao_cls_name + '.cs', 'wt') as fout:
+    with open("./output/" + dao_cls_name + '.cs', 'wt', encoding='utf-8') as fout:
         columns = []
         count = len(column_info_list)
         index = 0;

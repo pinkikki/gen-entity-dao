@@ -4,29 +4,71 @@ using Plugins;
 using script.common.entity;
 using script.core.db;
 
-public static class {{ dao_cls }}
+public class {{ dao_cls }} : MergeDao
 {
-    public static List<{{ entity_cls }}> SelectAll()
+
+    // 唯一のインスタンス
+    private static {{ dao_cls }} instance;
+
+    public static {{ dao_cls }} Instance {
+        get {
+            if (instance == null) {
+                instance = new {{ dao_cls }}();
+            }
+            return instance;
+        }
+    }
+
+    public void Merge(SqliteDatabase oldDb) {
+        foreach ({{ entity_cls }} oldData in instance.SelectAll(oldDb)) {
+            if (instance.SelectByPrimaryKey(oldData.Id, oldDb) == null) {
+                Insert(oldData, oldDb);
+            }
+            else {
+                Update(oldData, oldDb);
+            }
+        }
+    }
+
+    public List<{{ entity_cls }}> SelectAll(SqliteDatabase mdb = null)
     {
         List<{{ entity_cls }}> entityList = new List<{{ entity_cls }}>();
         StringBuilder sb = new StringBuilder();
         sb.Append("SELECT * FROM {{ table_name }};");
-        DataTable dataTable = DbManager.ExecuteQuery(sb.ToString());
-        dataTable.Rows.ForEach(r => entityList.Add(CreateEntity(r)));
+        DataTable dataTable;
+        if (mdb == null)
+        {
+            dataTable = DbManager.Instance.ExecuteQuery(sb.ToString());
+        }
+        else
+        {
+            dataTable = DbManager.Instance.ExecuteQuery(sb.ToString(), mdb);
+
+        }
+        dataTable.Rows.ForEach(r => entityList.Add(instance.CreateEntity(r)));
         return entityList;
     }
 
-    public static {{ entity_cls }} SelectByPrimaryKey(int {{ pk_field }})
+    public {{ entity_cls }} SelectByPrimaryKey(int {{ pk_field }}, SqliteDatabase mdb = null)
     {
         StringBuilder sb = new StringBuilder();
         sb.Append("SELECT * FROM {{ table_name }} WHERE {{ pk_name }} = ")
             .Append({{ pk_field }})
             .Append(";");
-        DataTable dataTable = DbManager.ExecuteQuery(sb.ToString());
-        return dataTable.Rows.Count == 0 ? null : CreateEntity(dataTable[0]);
+        DataTable dataTable;
+        if (mdb == null)
+        {
+            dataTable = DbManager.Instance.ExecuteQuery(sb.ToString());
+        }
+        else
+        {
+            dataTable = DbManager.Instance.ExecuteQuery(sb.ToString(), mdb);
+
+        }
+        return dataTable.Rows.Count == 0 ? null : instance.CreateEntity(dataTable[0]);
     }
 
-    public static void Insert({{ entity_cls }} entity)
+    public void Insert({{ entity_cls }} entity, SqliteDatabase mdb = null)
     {
         StringBuilder sb = new StringBuilder();
         sb.Append("INSERT INTO {{ table_name }} VALUES (")
@@ -37,10 +79,18 @@ public static class {{ dao_cls }}
             {% if column.last_flg == false %}.Append(","){% endif %}
         {% endfor %}
             .Append(");");
-        DbManager.ExecuteNonQuery(sb.ToString());
+            if (mdb == null)
+            {
+                DbManager.Instance.ExecuteNonQuery(sb.ToString());
+            }
+            else
+            {
+                DbManager.Instance.ExecuteNonQuery(sb.ToString(), mdb);
+            }
+
     }
 
-    public static void Update({{ entity_cls }} entity)
+    public void Update({{ entity_cls }} entity, SqliteDatabase mdb = null)
     {
         StringBuilder sb = new StringBuilder();
         sb.Append("UPDATE {{ table_name }} SET ")
@@ -52,10 +102,18 @@ public static class {{ dao_cls }}
             {% if column.last_flg == false %}.Append(","){% endif %}
         {% endfor %}
             .Append(";");
-        DbManager.ExecuteNonQuery(sb.ToString());
+            if (mdb == null)
+            {
+                DbManager.Instance.ExecuteNonQuery(sb.ToString());
+            }
+            else
+            {
+                DbManager.Instance.ExecuteNonQuery(sb.ToString(), mdb);
+            }
+
     }
 
-    private static {{ entity_cls }} CreateEntity(DataRow row)
+    private {{ entity_cls }} CreateEntity(DataRow row)
     {
         {{ entity_cls }} entity = new {{ entity_cls }}();
         {% for column in columns %}

@@ -20,7 +20,7 @@ def create_entity(table_name, column_info_list):
     cls_name = StringUtils.to_camel(table_name) + "Entity"
     env = Environment(loader=FileSystemLoader('./template/', encoding='utf8'))
     tpl = env.get_template('entity.template')
-    with open("./output/" + cls_name + '.cs', 'wt', encoding='utf-8') as fout:
+    with open("./output/entity/" + cls_name + '.cs', 'wt', encoding='utf-8') as fout:
         columns = []
         for column_info in column_info_list:
             columns.append(
@@ -34,7 +34,7 @@ def create_dao(table_name, column_info_list):
     entity_cls_name = StringUtils.to_camel(table_name) + "Entity"
     env = Environment(loader=FileSystemLoader('./template/', encoding='utf8'))
     tpl = env.get_template('dao.template')
-    with open("./output/" + dao_cls_name + '.cs', 'wt', encoding='utf-8') as fout:
+    with open("./output/dao/" + dao_cls_name + '.cs', 'wt', encoding='utf-8') as fout:
         columns = []
         count = len(column_info_list)
         index = 0;
@@ -51,7 +51,7 @@ def create_dao(table_name, column_info_list):
 
 
 def main():
-    table_list = DbSupport.create_entity_list('../input/master.db')
+    table_list = DbSupport.create_entity_list('../input/monster.db')
 
     for table in table_list:
         if table[0] == "sqlite_sequence":

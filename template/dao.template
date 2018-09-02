@@ -1,124 +1,126 @@
 using System.Collections.Generic;
 using System.Text;
 using Plugins;
-using script.common.entity;
-using script.core.db;
+using script.db.entity;
 
-public class {{ dao_cls }} : MergeDao
+namespace db.dao
 {
+    public class {{ dao_cls }} : MergeDao
+    {
 
-    // 唯一のインスタンス
-    private static {{ dao_cls }} instance;
+        // 唯一のインスタンス
+        private static {{ dao_cls }} instance;
 
-    public static {{ dao_cls }} Instance {
-        get {
-            if (instance == null) {
-                instance = new {{ dao_cls }}();
-            }
-            return instance;
-        }
-    }
-
-    public void Merge(SqliteDatabase oldDb) {
-        foreach ({{ entity_cls }} oldData in instance.SelectAll(oldDb)) {
-            if (instance.SelectByPrimaryKey(oldData.Id, oldDb) == null) {
-                Insert(oldData, oldDb);
-            }
-            else {
-                Update(oldData, oldDb);
+        public static {{ dao_cls }} Instance {
+            get {
+                if (instance == null) {
+                    instance = new {{ dao_cls }}();
+                }
+                return instance;
             }
         }
-    }
 
-    public List<{{ entity_cls }}> SelectAll(SqliteDatabase mdb = null)
-    {
-        List<{{ entity_cls }}> entityList = new List<{{ entity_cls }}>();
-        StringBuilder sb = new StringBuilder();
-        sb.Append("SELECT * FROM {{ table_name }};");
-        DataTable dataTable;
-        if (mdb == null)
-        {
-            dataTable = DbManager.Instance.ExecuteQuery(sb.ToString());
+        public void Merge(SqliteDatabase oldDb) {
+            foreach ({{ entity_cls }} oldData in instance.SelectAll(oldDb)) {
+                if (instance.SelectByPrimaryKey(oldData.Id, oldDb) == null) {
+                    Insert(oldData, oldDb);
+                }
+                else {
+                    Update(oldData, oldDb);
+                }
+            }
         }
-        else
+
+        public List<{{ entity_cls }}> SelectAll(SqliteDatabase mdb = null)
         {
-            dataTable = DbManager.Instance.ExecuteQuery(sb.ToString(), mdb);
-
-        }
-        dataTable.Rows.ForEach(r => entityList.Add(instance.CreateEntity(r)));
-        return entityList;
-    }
-
-    public {{ entity_cls }} SelectByPrimaryKey(int {{ pk_field }}, SqliteDatabase mdb = null)
-    {
-        StringBuilder sb = new StringBuilder();
-        sb.Append("SELECT * FROM {{ table_name }} WHERE {{ pk_name }} = ")
-            .Append({{ pk_field }})
-            .Append(";");
-        DataTable dataTable;
-        if (mdb == null)
-        {
-            dataTable = DbManager.Instance.ExecuteQuery(sb.ToString());
-        }
-        else
-        {
-            dataTable = DbManager.Instance.ExecuteQuery(sb.ToString(), mdb);
-
-        }
-        return dataTable.Rows.Count == 0 ? null : instance.CreateEntity(dataTable[0]);
-    }
-
-    public void Insert({{ entity_cls }} entity, SqliteDatabase mdb = null)
-    {
-        StringBuilder sb = new StringBuilder();
-        sb.Append("INSERT INTO {{ table_name }} VALUES (")
-        {% for column in columns %}
-            {% if column.type == 'string' %}.Append("'"){% endif %}
-            {% if column.type == 'bool' %}.Append(entity.{{ column.field }} ? 1 : 0){% else %}.Append(entity.{{ column.field }}){% endif %}
-            {% if column.type == 'string' %}.Append("'"){% endif %}
-            {% if column.last_flg == false %}.Append(","){% endif %}
-        {% endfor %}
-            .Append(");");
+            List<{{ entity_cls }}> entityList = new List<{{ entity_cls }}>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT * FROM {{ table_name }};");
+            DataTable dataTable;
             if (mdb == null)
             {
-                DbManager.Instance.ExecuteNonQuery(sb.ToString());
+                dataTable = DbManager.Instance.ExecuteQuery(sb.ToString());
             }
             else
             {
-                DbManager.Instance.ExecuteNonQuery(sb.ToString(), mdb);
+                dataTable = DbManager.Instance.ExecuteQuery(sb.ToString(), mdb);
+
             }
+            dataTable.Rows.ForEach(r => entityList.Add(instance.CreateEntity(r)));
+            return entityList;
+        }
 
-    }
-
-    public void Update({{ entity_cls }} entity, SqliteDatabase mdb = null)
-    {
-        StringBuilder sb = new StringBuilder();
-        sb.Append("UPDATE {{ table_name }} SET ")
-        {% for column in columns %}
-            .Append("{{ column.name }} = ")
-            {% if column.type == 'string' %}.Append("'"){% endif %}
-            {% if column.type == 'bool' %}.Append(entity.{{ column.field }} ? 1 : 0){% else %}.Append(entity.{{ column.field }}){% endif %}
-            {% if column.type == 'string' %}.Append("'"){% endif %}
-            {% if column.last_flg == false %}.Append(","){% endif %}
-        {% endfor %}
-            .Append(";");
+        public {{ entity_cls }} SelectByPrimaryKey(int {{ pk_field }}, SqliteDatabase mdb = null)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT * FROM {{ table_name }} WHERE {{ pk_name }} = ")
+                .Append({{ pk_field }})
+                .Append(";");
+            DataTable dataTable;
             if (mdb == null)
             {
-                DbManager.Instance.ExecuteNonQuery(sb.ToString());
+                dataTable = DbManager.Instance.ExecuteQuery(sb.ToString());
             }
             else
             {
-                DbManager.Instance.ExecuteNonQuery(sb.ToString(), mdb);
+                dataTable = DbManager.Instance.ExecuteQuery(sb.ToString(), mdb);
+
             }
+            return dataTable.Rows.Count == 0 ? null : instance.CreateEntity(dataTable[0]);
+        }
 
-    }
+        public void Insert({{ entity_cls }} entity, SqliteDatabase mdb = null)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("INSERT INTO {{ table_name }} VALUES (")
+            {% for column in columns %}
+                {% if column.type == 'string' %}.Append("'"){% endif %}
+                {% if column.type == 'bool' %}.Append(entity.{{ column.field }} ? 1 : 0){% else %}.Append(entity.{{ column.field }}){% endif %}
+                {% if column.type == 'string' %}.Append("'"){% endif %}
+                {% if column.last_flg == false %}.Append(","){% endif %}
+            {% endfor %}
+                .Append(");");
+                if (mdb == null)
+                {
+                    DbManager.Instance.ExecuteNonQuery(sb.ToString());
+                }
+                else
+                {
+                    DbManager.Instance.ExecuteNonQuery(sb.ToString(), mdb);
+                }
 
-    private {{ entity_cls }} CreateEntity(DataRow row)
-    {
-        {{ entity_cls }} entity = new {{ entity_cls }}();
-        {% for column in columns %}
-        entity.{{ column.field }} = DaoSupport.{% if column.type == 'int' %}GetIntValue{% elif column.type == 'string' %}GetStringValue{% else %}GetBoolValue{% endif %}(row, "{{ column.field }}");
-        {% endfor %}
-        return entity;
+        }
+
+        public void Update({{ entity_cls }} entity, SqliteDatabase mdb = null)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("UPDATE {{ table_name }} SET ")
+            {% for column in columns %}
+                .Append("{{ column.name }} = ")
+                {% if column.type == 'string' %}.Append("'"){% endif %}
+                {% if column.type == 'bool' %}.Append(entity.{{ column.field }} ? 1 : 0){% else %}.Append(entity.{{ column.field }}){% endif %}
+                {% if column.type == 'string' %}.Append("'"){% endif %}
+                {% if column.last_flg == false %}.Append(","){% endif %}
+            {% endfor %}
+                .Append(";");
+                if (mdb == null)
+                {
+                    DbManager.Instance.ExecuteNonQuery(sb.ToString());
+                }
+                else
+                {
+                    DbManager.Instance.ExecuteNonQuery(sb.ToString(), mdb);
+                }
+
+        }
+
+        private {{ entity_cls }} CreateEntity(DataRow row)
+        {
+            {{ entity_cls }} entity = new {{ entity_cls }}();
+            {% for column in columns %}
+            entity.{{ column.field }} = DaoSupport.{% if column.type == 'int' %}GetIntValue{% elif column.type == 'string' %}GetStringValue{% else %}GetBoolValue{% endif %}(row, "{{ column.name }}");
+            {% endfor %}
+            return entity;
+        }
     }
 }

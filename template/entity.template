@@ -1,4 +1,4 @@
-namespace script.common.entity
+namespace script.db.entity
 {
     public class {{ entity_cls }} {
         {% for column in columns %}

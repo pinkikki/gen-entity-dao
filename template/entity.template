@@ -1,4 +1,4 @@
-namespace script.db.entity
+namespace Core.Database.Entity
 {
     public class {{ entity_cls }} {
         {% for column in columns %}

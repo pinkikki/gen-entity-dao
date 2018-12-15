@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Text;
 using Plugins;
-using script.db.entity;
+using Core.Database.Entity;
 
-namespace db.dao
+namespace Core.Database.Dao
 {
-    public class {{ dao_cls }} : MergeDao
+    public class {{ dao_cls }} : IMergeDao
     {
 
         // 唯一のインスタンス
@@ -35,7 +35,7 @@ namespace db.dao
         {
             List<{{ entity_cls }}> entityList = new List<{{ entity_cls }}>();
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT * FROM {{ table_name }};");
+            sb.Append("SELECT * FROM {{ table_name }} ORDER BY id;");
             DataTable dataTable;
             if (mdb == null)
             {
@@ -102,6 +102,8 @@ namespace db.dao
                 {% if column.type == 'string' %}.Append("'"){% endif %}
                 {% if column.last_flg == false %}.Append(","){% endif %}
             {% endfor %}
+                .Append(" WHERE {{ pk_name }} = ")
+                .Append(entity.{{ pk_column_field }})
                 .Append(";");
                 if (mdb == null)
                 {

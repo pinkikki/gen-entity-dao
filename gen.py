@@ -46,12 +46,13 @@ def create_dao(table_name, column_info_list):
 
         out_text = tpl.render(
             {'entity_cls': entity_cls_name, 'dao_cls': dao_cls_name, 'table_name': table_name, 'columns': columns,
-             'pk_name': column_info_list[0][0], 'pk_field': StringUtils.to_camel(columns[0]['name'], lower_flg=True)})
+             'pk_name': column_info_list[0][0], 'pk_field': StringUtils.to_camel(columns[0]['name'], lower_flg=True),
+             'pk_column_field': StringUtils.to_camel(columns[0]['field'])})
         fout.write(out_text)
 
 
 def main():
-    table_list = DbSupport.create_entity_list('../input/monster.db')
+    table_list = DbSupport.create_entity_list('../input/Master.db')
 
     for table in table_list:
         if table[0] == "sqlite_sequence":

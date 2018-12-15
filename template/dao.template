@@ -1,28 +1,18 @@
 using System.Collections.Generic;
 using System.Text;
-using Plugins;
 using Core.Database.Entity;
+using Plugins;
 
 namespace Core.Database.Dao
 {
     public class {{ dao_cls }} : IMergeDao
     {
-
-        // 唯一のインスタンス
-        private static {{ dao_cls }} instance;
-
-        public static {{ dao_cls }} Instance {
-            get {
-                if (instance == null) {
-                    instance = new {{ dao_cls }}();
-                }
-                return instance;
-            }
-        }
+        private static {{ dao_cls }} _instance;
+        public static {{ dao_cls }} Instance => _instance ?? (_instance = new {{ dao_cls }}());
 
         public void Merge(SqliteDatabase oldDb) {
-            foreach ({{ entity_cls }} oldData in instance.SelectAll(oldDb)) {
-                if (instance.SelectByPrimaryKey(oldData.Id, oldDb) == null) {
+            foreach (var oldData in _instance.SelectAll(oldDb)) {
+                if (_instance.SelectByPrimaryKey(oldData.Id, oldDb) == null) {
                     Insert(oldData, oldDb);
                 }
                 else {
@@ -36,17 +26,8 @@ namespace Core.Database.Dao
             List<{{ entity_cls }}> entityList = new List<{{ entity_cls }}>();
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT * FROM {{ table_name }} ORDER BY id;");
-            DataTable dataTable;
-            if (mdb == null)
-            {
-                dataTable = DbManager.Instance.ExecuteQuery(sb.ToString());
-            }
-            else
-            {
-                dataTable = DbManager.Instance.ExecuteQuery(sb.ToString(), mdb);
-
-            }
-            dataTable.Rows.ForEach(r => entityList.Add(instance.CreateEntity(r)));
+            var dataTable = mdb == null ? DbManager.Instance.ExecuteQuery(sb.ToString()) : DbManager.Instance.ExecuteQuery(sb.ToString(), mdb);
+            dataTable.Rows.ForEach(r => entityList.Add(_instance.CreateEntity(r)));
             return entityList;
         }
 
@@ -56,17 +37,8 @@ namespace Core.Database.Dao
             sb.Append("SELECT * FROM {{ table_name }} WHERE {{ pk_name }} = ")
                 .Append({{ pk_field }})
                 .Append(";");
-            DataTable dataTable;
-            if (mdb == null)
-            {
-                dataTable = DbManager.Instance.ExecuteQuery(sb.ToString());
-            }
-            else
-            {
-                dataTable = DbManager.Instance.ExecuteQuery(sb.ToString(), mdb);
-
-            }
-            return dataTable.Rows.Count == 0 ? null : instance.CreateEntity(dataTable[0]);
+            var dataTable = mdb == null ? DbManager.Instance.ExecuteQuery(sb.ToString()) : DbManager.Instance.ExecuteQuery(sb.ToString(), mdb);
+            return dataTable.Rows.Count == 0 ? null : _instance.CreateEntity(dataTable[0]);
         }
 
         public void Insert({{ entity_cls }} entity, SqliteDatabase mdb = null)
@@ -118,10 +90,12 @@ namespace Core.Database.Dao
 
         private {{ entity_cls }} CreateEntity(DataRow row)
         {
-            {{ entity_cls }} entity = new {{ entity_cls }}();
-            {% for column in columns %}
-            entity.{{ column.field }} = DaoSupport.{% if column.type == 'int' %}GetIntValue{% elif column.type == 'string' %}GetStringValue{% else %}GetBoolValue{% endif %}(row, "{{ column.name }}");
-            {% endfor %}
+            var entity = new {{ entity_cls }}
+            {
+                {% for column in columns %}
+                {{ column.field }} = DaoSupport.{% if column.type == 'int' %}GetIntValue{% elif column.type == 'string' %}GetStringValue{% else %}GetBoolValue{% endif %}(row, "{{ column.name }}");
+                {% endfor %}
+            }
             return entity;
         }
     }

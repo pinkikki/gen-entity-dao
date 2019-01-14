@@ -11,8 +11,8 @@ namespace Core.Database.Dao
         public static {{ dao_cls }} Instance => _instance ?? (_instance = new {{ dao_cls }}());
 
         public void Merge(SqliteDatabase oldDb) {
-            foreach (var oldData in _instance.SelectAll(oldDb)) {
-                if (_instance.SelectByPrimaryKey(oldData.Id, oldDb) == null) {
+            foreach (var oldData in _instance.FindAll(oldDb)) {
+                if (_instance.FindById(oldData.Id, oldDb) == null) {
                     Insert(oldData, oldDb);
                 }
                 else {

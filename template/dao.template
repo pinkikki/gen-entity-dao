@@ -21,7 +21,7 @@ namespace Core.Database.Dao
             }
         }
 
-        public List<{{ entity_cls }}> SelectAll(SqliteDatabase mdb = null)
+        public List<{{ entity_cls }}> FindAll(SqliteDatabase mdb = null)
         {
             List<{{ entity_cls }}> entityList = new List<{{ entity_cls }}>();
             StringBuilder sb = new StringBuilder();
@@ -31,7 +31,7 @@ namespace Core.Database.Dao
             return entityList;
         }
 
-        public {{ entity_cls }} SelectByPrimaryKey(int {{ pk_field }}, SqliteDatabase mdb = null)
+        public {{ entity_cls }} FindById(int {{ pk_field }}, SqliteDatabase mdb = null)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT * FROM {{ table_name }} WHERE {{ pk_name }} = ")

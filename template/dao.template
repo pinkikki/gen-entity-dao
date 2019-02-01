@@ -93,7 +93,7 @@ namespace Core.Database.Dao
             var entity = new {{ entity_cls }}
             {
                 {% for column in columns %}
-                {{ column.field }} = DaoSupport.{% if column.type == 'int' %}GetIntValue{% elif column.type == 'string' %}GetStringValue{% else %}GetBoolValue{% endif %}(row, "{{ column.name }}"),
+                {{ column.field }} = DaoSupport.{% if column.type == 'int' %}GetIntValue{% elif column.type == 'float' %}GetFloatValue{% elif column.type == 'string' %}GetStringValue{% else %}GetBoolValue{% endif %}(row, "{{ column.name }}"),
                 {% endfor %}
             };
             return entity;

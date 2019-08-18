@@ -14,6 +14,7 @@ def convert_from_sqlite_to_c(sqlite_type):
         ret = "bool"
     elif sqlite_type == "real":
         ret = "float"
+    print(sqlite_type)
 
     return ret
 
@@ -54,7 +55,7 @@ def create_dao(table_name, column_info_list):
 
 
 def main():
-    table_list = DbSupport.create_entity_list('../input/craft.db')
+    table_list = DbSupport.create_entity_list('../input/Craft.db')
 
     for table in table_list:
         if table[0] == "sqlite_sequence":

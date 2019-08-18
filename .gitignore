@@ -1,2 +1,4 @@
 *.idea
 *.iml
+*__init__.py
+venv
